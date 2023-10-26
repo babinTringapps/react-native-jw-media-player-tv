@@ -56,22 +56,14 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.9.0'
 
     // JWPlayer SDK
-    implementation "com.jwplayer:jwplayer-core:${safeExtGet('jwPlayerVersion', jwPlayerVersion)}"
-    implementation "com.jwplayer:jwplayer-common:${safeExtGet('jwPlayerVersion', jwPlayerVersion)}"
-    implementation "com.jwplayer:jwplayer-chromecast:${safeExtGet('jwPlayerVersion', jwPlayerVersion)}"
-    implementation "com.jwplayer:jwplayer-ima:${safeExtGet('jwPlayerVersion', jwPlayerVersion)}"
+    implementation "com.jwplayer:jwplayer-core:2.0.0"
+    implementation "com.jwplayer:jwplayer-common:2.0.0"
+   
 
     // Ad dependencies
     implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.29.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
-    implementation 'com.google.android.gms:play-services-cast-framework:21.3.0'
 
-    // ExoPlayer dependencies
-    implementation "com.google.android.exoplayer:exoplayer-core:${safeExtGet('exoplayerVersion', exoplayerVersion)}"
-    implementation "com.google.android.exoplayer:exoplayer-dash:${safeExtGet('exoplayerVersion', exoplayerVersion)}"
-    implementation "com.google.android.exoplayer:exoplayer-hls:${safeExtGet('exoplayerVersion', exoplayerVersion)}"
-    implementation "com.google.android.exoplayer:exoplayer-smoothstreaming:${safeExtGet('exoplayerVersion', exoplayerVersion)}"
-    implementation "com.google.android.exoplayer:exoplayer-ui:${safeExtGet('exoplayerVersion', exoplayerVersion)}"
 
     // JW Player Native UI dependencies
     implementation 'com.squareup.picasso:picasso:2.71828'
