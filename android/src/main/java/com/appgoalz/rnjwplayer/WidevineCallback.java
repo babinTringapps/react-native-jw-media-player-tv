@@ -1,4 +1,4 @@
-package com.appgoalz.rnjwplayer;
+package com.jwcms.RNJWPlayer;
 
 import android.annotation.TargetApi;
 import android.os.Parcel;
