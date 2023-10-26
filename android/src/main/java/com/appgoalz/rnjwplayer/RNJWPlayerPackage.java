@@ -1,5 +1,5 @@
 
-package com.appgoalz.rnjwplayer;
+package com.appgoalz.rnjwplayertv;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JavaScriptModule;
