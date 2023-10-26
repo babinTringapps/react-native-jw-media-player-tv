@@ -1,26 +1,20 @@
-package com.appgoalz.rnjwplayer;
+package com.jwcms.RNJWPlayer;
 
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
-import android.os.Build;
 import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.bridge.Arguments;
@@ -34,16 +28,14 @@ import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
+import com.jwcms.R;
 import com.jwplayer.pub.api.JWPlayer;
 import com.jwplayer.pub.api.UiGroup;
-import com.jwplayer.pub.api.background.MediaServiceController;
 import com.jwplayer.pub.api.configuration.PlayerConfig;
 import com.jwplayer.pub.api.configuration.UiConfig;
 import com.jwplayer.pub.api.configuration.ads.AdvertisingConfig;
-import com.jwplayer.pub.api.configuration.ads.VastAdvertisingConfig;
 import com.jwplayer.pub.api.configuration.ads.VmapAdvertisingConfig;
-import com.jwplayer.pub.api.configuration.ads.dai.ImaDaiAdvertisingConfig;
-import com.jwplayer.pub.api.configuration.ads.ima.ImaAdvertisingConfig;
+
 import com.jwplayer.pub.api.events.AdPauseEvent;
 import com.jwplayer.pub.api.events.AdPlayEvent;
 import com.jwplayer.pub.api.events.AudioTrackChangedEvent;
@@ -80,13 +72,9 @@ import com.jwplayer.pub.api.events.listeners.AdvertisingEvents;
 import com.jwplayer.pub.api.events.listeners.CastingEvents;
 import com.jwplayer.pub.api.events.listeners.PipPluginEvents;
 import com.jwplayer.pub.api.events.listeners.VideoPlayerEvents;
-import com.jwplayer.pub.api.fullscreen.FullscreenHandler;
 import com.jwplayer.pub.api.license.LicenseUtil;
 import com.jwplayer.pub.api.media.ads.AdBreak;
 import com.jwplayer.pub.api.media.ads.AdClient;
-import com.jwplayer.pub.api.media.captions.Caption;
-import com.jwplayer.pub.api.media.captions.CaptionType;
-import com.jwplayer.pub.api.media.playlists.MediaSource;
 import com.jwplayer.pub.api.media.playlists.PlaylistItem;
 import com.jwplayer.ui.views.CueMarkerSeekbar;
 
@@ -194,20 +182,6 @@ public class RNJWPlayerView extends RelativeLayout implements
 
     private ThemedReactContext mThemedReactContext;
 
-    private MediaServiceController mMediaServiceController;
-
-    private void doBindService() {
-        if (mMediaServiceController != null) {
-            mMediaServiceController.bindService();
-        }
-    }
-
-    private void doUnbindService() {
-        if (mMediaServiceController != null) {
-            mMediaServiceController.unbindService();
-            mMediaServiceController = null;
-        }
-    }
 
     private static boolean contextHasBug(Context context) {
         return context == null ||
@@ -294,7 +268,6 @@ public class RNJWPlayerView extends RelativeLayout implements
                     EventType.CONTROLS,
                     EventType.CONTROLBAR_VISIBILITY,
                     EventType.DISPLAY_CLICK,
-                    EventType.FULLSCREEN,
                     EventType.SEEK,
                     EventType.SEEKED,
                     EventType.CAPTIONS_LIST,
@@ -304,12 +277,9 @@ public class RNJWPlayerView extends RelativeLayout implements
                     EventType.BEFORE_PLAY,
                     EventType.BEFORE_COMPLETE,
                     EventType.AD_PLAY,
-                    EventType.AD_PAUSE,
+                    EventType.AD_PAUSE
                     // Cast event
-                    EventType.CAST,
-                    // Pip events
-                    EventType.PIP_CLOSE,
-                    EventType.PIP_OPEN
+
             );
 
             mPlayer  = null;
@@ -317,19 +287,10 @@ public class RNJWPlayerView extends RelativeLayout implements
 
             getReactContext().removeLifecycleEventListener(this);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (audioManager != null && focusRequest != null) {
-                    audioManager.abandonAudioFocusRequest(focusRequest);
-                }
-            } else {
-                if (audioManager != null) {
-                    audioManager.abandonAudioFocus(this);
-                }
-            }
+
 
             audioManager = null;
 
-            doUnbindService();
         }
     }
 
@@ -354,7 +315,6 @@ public class RNJWPlayerView extends RelativeLayout implements
                     EventType.CONTROLS,
                     EventType.CONTROLBAR_VISIBILITY,
                     EventType.DISPLAY_CLICK,
-                    EventType.FULLSCREEN,
                     EventType.SEEK,
                     EventType.SEEKED,
                     EventType.CAPTIONS_LIST,
@@ -364,122 +324,16 @@ public class RNJWPlayerView extends RelativeLayout implements
                     EventType.BEFORE_PLAY,
                     EventType.BEFORE_COMPLETE,
                     EventType.AD_PLAY,
-                    EventType.AD_PAUSE,
-                    // Cast event
-                    EventType.CAST,
-                    // Pip events
-                    EventType.PIP_CLOSE,
-                    EventType.PIP_OPEN
+                    EventType.AD_PAUSE
             );
 
-            mPlayer.setFullscreenHandler(new fullscreenHandler());
+            //mPlayer.setFullscreenHandler(new fullscreenHandler());
 
             mPlayer.allowBackgroundAudio(backgroundAudioEnabled);
         }
     }
 
-    private class fullscreenHandler implements FullscreenHandler {
-        ViewGroup mPlayerViewContainer = (ViewGroup) mPlayerView.getParent();
-        private View mDecorView;
 
-        @Override
-        public void onFullscreenRequested() {
-            mDecorView = mActivity.getWindow().getDecorView();
-
-            // Hide system ui
-            mDecorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hides bottom bar
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN // hides top bar
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY // prevents navigation bar from overriding
-                    // exit-full-screen button. Swipe from side to access nav bar.
-            );
-
-            // Enter landscape mode for fullscreen videos
-            if (landscapeOnFullScreen) {
-                mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            }
-
-            mPlayerViewContainer = (ViewGroup) mPlayerView.getParent();
-
-            // Remove the JWPlayerView from the list item.
-            if (mPlayerViewContainer != null) {
-                mPlayerViewContainer.removeView(mPlayerView);
-            }
-
-            // Initialize a new rendering surface.
-//                        mPlayerView.initializeSurface();
-
-            // Add the JWPlayerView to the RootView as soon as the UI thread is ready.
-            mRootView.post(new Runnable() {
-                @Override
-                public void run() {
-                    mRootView.addView(mPlayerView, new ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                    ));
-                }
-            });
-
-            WritableMap eventEnterFullscreen = Arguments.createMap();
-            eventEnterFullscreen.putString("message", "onFullscreenRequested");
-            getReactContext().getJSModule(RCTEventEmitter.class).receiveEvent(
-                    getId(),
-                    "topFullScreenRequested",
-                    eventEnterFullscreen);
-        }
-
-        @Override
-        public void onFullscreenExitRequested() {
-            mDecorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_VISIBLE // clear the hide system flags
-            );
-
-            // Enter portrait mode
-            if (portraitOnExitFullScreen) {
-                mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            }
-
-            // Remove the player view from the root ViewGroup.
-            mRootView.removeView(mPlayerView);
-
-            // As soon as the UI thread has finished processing the current message queue it
-            // should add the JWPlayerView back to the list item.
-            mPlayerViewContainer.post(new Runnable() {
-                @Override
-                public void run() {
-                    mPlayerViewContainer.addView(mPlayerView, new ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                    ));
-                    mPlayerView.layout(mPlayerViewContainer.getLeft(), mPlayerViewContainer.getTop(), mPlayerViewContainer.getRight(), mPlayerViewContainer.getBottom());
-                }
-            });
-
-            WritableMap eventExitFullscreen = Arguments.createMap();
-            eventExitFullscreen.putString("message", "onFullscreenExitRequested");
-            getReactContext().getJSModule(RCTEventEmitter.class).receiveEvent(
-                    getId(),
-                    "topFullScreenExitRequested",
-                    eventExitFullscreen);
-        }
-
-        @Override
-        public void onAllowRotationChanged(boolean b) {
-            Log.e(TAG, "onAllowRotationChanged: "+b );
-        }
-
-        @Override
-        public void updateLayoutParams(ViewGroup.LayoutParams layoutParams) {
-//        View.setSystemUiVisibility(int).
-//        Log.e(TAG, "updateLayoutParams: "+layoutParams );
-        }
-
-        @Override
-        public void setUseFullscreenLayoutFlags(boolean b) {
-//        View.setSystemUiVisibility(int).
-//        Log.e(TAG, "setUseFullscreenLayoutFlags: "+b );
-        }
-    }
 
 
 
@@ -507,6 +361,7 @@ public class RNJWPlayerView extends RelativeLayout implements
                         .build();
 
                 mPlayer.setup(config);
+
             } else {
                 if (prop.hasKey("license")) {
                     new LicenseUtil().setLicenseKey(getReactContext(), prop.getString("license"));
@@ -631,34 +486,34 @@ public class RNJWPlayerView extends RelativeLayout implements
                     }
                 }
 
-                if (ads.hasKey("adClient") &&
-                        ads.getString("adClient") != null &&
-                        CLIENT_TYPES.get(ads.getString("adClient")) != null) {
-                    Integer clientType = CLIENT_TYPES.get(ads.getString("adClient"));
-                    switch (clientType) {
-                        case 1:
-                            client = AdClient.IMA;
-                            advertisingConfig = new ImaAdvertisingConfig.Builder().schedule(adScheduleList).build();
-                            break;
-                        case 2:
-                            client = AdClient.IMA_DAI;
-                            advertisingConfig = new ImaDaiAdvertisingConfig.Builder().build();
-                            break;
-                        default:
-                            client = AdClient.VAST;
-                            advertisingConfig = new VastAdvertisingConfig.Builder()
-                                    .schedule(adScheduleList)
-                                    .build();
-                            break;
-                    }
-                } else {
-                    client = AdClient.VAST;
-                    advertisingConfig = new VastAdvertisingConfig.Builder()
-                            .schedule(adScheduleList)
-                            .build();
-                }
+//                if (ads.hasKey("adClient") &&
+//                        ads.getString("adClient") != null &&
+//                        CLIENT_TYPES.get(ads.getString("adClient")) != null) {
+//                    Integer clientType = CLIENT_TYPES.get(ads.getString("adClient"));
+//                    switch (clientType) {
+//                        case 1:
+//                            client = AdClient.IMA;
+//                            advertisingConfig = new ImaAdvertisingConfig.Builder().schedule(adScheduleList).build();
+//                            break;
+//                        case 2:
+//                            client = AdClient.IMA_DAI;
+//                            advertisingConfig = new ImaDaiAdvertisingConfig.Builder().build();
+//                            break;
+//                        default:
+//                            client = AdClient.VAST;
+//                            advertisingConfig = new VastAdvertisingConfig.Builder()
+//                                    .schedule(adScheduleList)
+//                                    .build();
+//                            break;
+//                    }
+//                } else {
+//                    client = AdClient.VAST;
+//                    advertisingConfig = new VastAdvertisingConfig.Builder()
+//                            .schedule(adScheduleList)
+//                            .build();
+//                }
 
-                configBuilder.advertisingConfig(advertisingConfig);
+                //configBuilder.advertisingConfig(advertisingConfig);
             } else if (ads != null && ads.hasKey("adVmap")) {
                 String adVmap = ads.getString("adVmap");
                 advertisingConfig = new VmapAdvertisingConfig.Builder().tag(adVmap).build();
@@ -700,9 +555,10 @@ public class RNJWPlayerView extends RelativeLayout implements
         this.destroyPlayer();
 
         mPlayerView = new RNJWPlayer(simpleContext);
-        
+
         mPlayerView.setFocusable(true);
         mPlayerView.setFocusableInTouchMode(true);
+        mPlayerView.getPlayer().setControls(true);
 
         setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         mPlayerView.setLayoutParams(new LinearLayout.LayoutParams(
@@ -727,14 +583,6 @@ public class RNJWPlayerView extends RelativeLayout implements
         mPlayer = mPlayerView.getPlayer();
         mPlayer.setup(playerConfig);
 
-        if (mActivity != null && prop.hasKey("pipEnabled")) {
-            boolean pipEnabled = prop.getBoolean("pipEnabled");
-            if (pipEnabled) {
-                mPlayer.registerActivityForPip(mActivity, mActivity.getSupportActionBar());
-            } else {
-                mPlayer.deregisterActivityForPip();
-            }
-        }
 
         if (mColors != null) {
             if (mColors.hasKey("backgroundColor")) {
@@ -783,143 +631,18 @@ public class RNJWPlayerView extends RelativeLayout implements
 
         setupPlayerView(backgroundAudioEnabled);
 
-        if (backgroundAudioEnabled) {
-            audioManager = (AudioManager) simpleContext.getSystemService(Context.AUDIO_SERVICE);
-            mMediaServiceController = new MediaServiceController.Builder((AppCompatActivity) mActivity, mPlayer).build();
-            doBindService();
-        }
+
     }
 
     // Audio Focus
 
-    public void requestAudioFocus() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            if (hasAudioFocus) {
-                return;
-            }
-
-            if (audioManager != null) {
-                AudioAttributes playbackAttributes = new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC) // CONTENT_TYPE_SPEECH
-                        .build();
-                focusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                        .setAudioAttributes(playbackAttributes)
-                        .setAcceptsDelayedFocusGain(true)
-//                    .setWillPauseWhenDucked(true)
-                        .setOnAudioFocusChangeListener(this)
-                        .build();
-
-                int res = audioManager.requestAudioFocus(focusRequest);
-                synchronized(focusLock) {
-                    if (res == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
-                        playbackNowAuthorized = false;
-                    } else if (res == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                        playbackNowAuthorized = true;
-                        hasAudioFocus = true;
-                    } else if (res == AudioManager.AUDIOFOCUS_REQUEST_DELAYED) {
-                        playbackDelayed = true;
-                        playbackNowAuthorized = false;
-                    }
-                }
-                Log.e(TAG, "audioRequest: " + res);
-            }
-        }
-        else {
-            int result = 0;
-            if (audioManager != null) {
-                if (hasAudioFocus) {
-                    return;
-                }
-
-                result = audioManager.requestAudioFocus(this,
-                        // Use the music stream.
-                        AudioManager.STREAM_MUSIC,
-                        // Request permanent focus.
-                        AudioManager.AUDIOFOCUS_GAIN);
-            }
-            if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                hasAudioFocus = true;
-            }
-            Log.e(TAG, "audioRequest: " + result);
-        }
-    }
 
 
-    public void lowerApiOnAudioFocus(int focusChange) {
-        if (mPlayer != null) {
-            int initVolume = mPlayer.getVolume();
 
-            switch (focusChange) {
-                case AudioManager.AUDIOFOCUS_GAIN:
-                    if (!userPaused) {
-                        setVolume(initVolume);
 
-                        boolean autostart = mPlayer.getConfig().getAutostart();
-                        if (autostart) {
-                            mPlayer.play();
-                        }
-                    }
-                    break;
-                case AudioManager.AUDIOFOCUS_LOSS:
-                    mPlayer.pause();
-                    wasInterrupted = true;
-                    hasAudioFocus = false;
-                    break;
-                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                    mPlayer.pause();
-                    wasInterrupted = true;
-                    break;
-                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                    setVolume(initVolume / 2);
-                    break;
-            }
-        }
-    }
 
     public void onAudioFocusChange(int focusChange) {
-        if (mPlayer != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                int initVolume = mPlayer.getVolume();
 
-                switch (focusChange) {
-                    case AudioManager.AUDIOFOCUS_GAIN:
-                        if (playbackDelayed || !userPaused) {
-                            synchronized(focusLock) {
-                                playbackDelayed = false;
-                            }
-
-                            setVolume(initVolume);
-
-                            boolean autostart = mPlayer.getConfig().getAutostart();
-                            if (autostart) {
-                                mPlayer.play();
-                            }
-                        }
-                        break;
-                    case AudioManager.AUDIOFOCUS_LOSS:
-                        mPlayer.pause();
-                        synchronized(focusLock) {
-                            wasInterrupted = true;
-                            playbackDelayed = false;
-                        }
-                        hasAudioFocus = false;
-                        break;
-                    case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                        mPlayer.pause();
-                        synchronized(focusLock) {
-                            wasInterrupted = true;
-                            playbackDelayed = false;
-                        }
-                        break;
-                    case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                        setVolume(initVolume / 2);
-                        break;
-                }
-            } else {
-                lowerApiOnAudioFocus(focusChange);
-            }
-        }
     }
 
     private void setVolume(int volume) {
@@ -939,7 +662,7 @@ public class RNJWPlayerView extends RelativeLayout implements
     }
 
     // AdEvents
-    
+
     @Override
     public void onAdPause(AdPauseEvent adPauseEvent) {
         WritableMap event = Arguments.createMap();
@@ -967,7 +690,6 @@ public class RNJWPlayerView extends RelativeLayout implements
     @Override
     public void onBeforePlay(BeforePlayEvent beforePlayEvent) {
         if (backgroundAudioEnabled) {
-            doBindService();
         }
 
         WritableMap event = Arguments.createMap();
@@ -1091,10 +813,7 @@ public class RNJWPlayerView extends RelativeLayout implements
 
     @Override
     public void onPlay(PlayEvent playEvent) {
-        if (backgroundAudioEnabled) {
-            doBindService();
-            requestAudioFocus();
-        }
+
 
         WritableMap event = Arguments.createMap();
         event.putString("message", "onPlay");
@@ -1117,9 +836,7 @@ public class RNJWPlayerView extends RelativeLayout implements
 
     @Override
     public void onPlaylistItem(PlaylistItemEvent playlistItemEvent) {
-        if (backgroundAudioEnabled) {
-            doBindService();
-        }
+
 
         currentPlayingIndex = playlistItemEvent.getIndex();
 
