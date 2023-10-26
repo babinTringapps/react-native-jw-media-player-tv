@@ -1,5 +1,5 @@
 
-package com.appgoalz.rnjwplayer;
+package com.appgoalz.rnjwplayertv;
 
 import android.media.AudioManager;
 
