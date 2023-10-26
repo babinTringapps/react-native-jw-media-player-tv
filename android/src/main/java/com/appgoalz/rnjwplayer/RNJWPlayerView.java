@@ -28,7 +28,7 @@ import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
-import com.jwcms.R;
+import com.appgoalz.rnjwplayer.R;
 import com.jwplayer.pub.api.JWPlayer;
 import com.jwplayer.pub.api.UiGroup;
 import com.jwplayer.pub.api.configuration.PlayerConfig;
