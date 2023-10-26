@@ -1,4 +1,4 @@
-package com.appgoalz.rnjwplayer;
+package com.jwcms.RNJWPlayer;
 
 
 import android.content.Context;
@@ -18,11 +18,14 @@ public class RNJWPlayer extends JWPlayerView {
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         // Exit fullscreen or perform the action requested
-        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && this.getPlayer().getFullscreen()) {
-            if (event.getAction() == KeyEvent.ACTION_UP) {
-                this.getPlayer().setFullscreen(false,false);
-            }
-            return true;
+//        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && this.getPlayer().getFullscreen()) {
+//            if (event.getAction() == KeyEvent.ACTION_UP) {
+//                this.getPlayer().setFullscreen(false,false);
+//            }
+//            return true;
+//        }
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            restartAutoHiding();
         }
         return super.dispatchKeyEvent(event);
     }
@@ -53,24 +56,23 @@ public class RNJWPlayer extends JWPlayerView {
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            if (fullScreenOnLandscape) {
-                this.getPlayer().setFullscreen(true,true);
-            }
-        } else if (newConfig.orientation==Configuration.ORIENTATION_PORTRAIT) {
-            if (exitFullScreenOnPortrait) {
-                this.getPlayer().setFullscreen(false,false);
-            }
-        }
+
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && this.getPlayer().getFullscreen()) {
-            this.getPlayer().setFullscreen(false,false);
-            return true;
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            restartAutoHiding();
+
         }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    private void restartAutoHiding() {
+        if (!this.getPlayer().isControlBarVisible()) { // Hack to prevent controls from hide during continuous navigation
+            this.getPlayer().setForceControlsVisibility(true);
+            this.getPlayer().setForceControlsVisibility(false);
+        }
     }
 }
