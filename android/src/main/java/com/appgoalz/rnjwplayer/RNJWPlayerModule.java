@@ -1,5 +1,5 @@
 
-package com.appgoalz.rnjwplayer;
+package com.jwcms.RNJWPlayer;
 
 import android.media.AudioManager;
 
@@ -9,7 +9,6 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
-import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.IllegalViewOperationException;
@@ -20,16 +19,15 @@ import com.jwplayer.pub.api.JWPlayer;
 import com.jwplayer.pub.api.PlayerState;
 import com.jwplayer.pub.api.configuration.PlayerConfig;
 import com.jwplayer.pub.api.media.audio.AudioTrack;
-import com.jwplayer.pub.api.media.playlists.PlaylistItem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class RNJWPlayerModule extends ReactContextBaseJavaModule {
 
   private final ReactApplicationContext mReactContext;
 
-  private static final String TAG = "RNJWPlayerModule";
+  private static final String TAG = "RNJWTVPlayerModule";
+
 
   public RNJWPlayerModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -39,7 +37,7 @@ public class RNJWPlayerModule extends ReactContextBaseJavaModule {
 
   @Override
   public String getName() {
-    return TAG;
+    return "RNJWTVPlayerModule";
   }
 
   @ReactMethod
@@ -124,24 +122,7 @@ public class RNJWPlayerModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void togglePIP(final int reactTag) {
-    try {
-      UIManagerModule uiManager = mReactContext.getNativeModule(UIManagerModule.class);
-      uiManager.addUIBlock(new UIBlock() {
-        public void execute (NativeViewHierarchyManager nvhm) {
-          RNJWPlayerView playerView = (RNJWPlayerView) nvhm.resolveView(reactTag);
 
-          if (playerView != null && playerView.mPlayerView != null) {
-            if (playerView.mPlayerView.getPlayer().isInPictureInPictureMode()) {
-              playerView.mPlayerView.getPlayer().exitPictureInPictureMode();
-            } else {
-              playerView.mPlayerView.getPlayer().enterPictureInPictureMode();
-            }
-          }
-        }
-      });
-    } catch (IllegalViewOperationException e) {
-      throw e;
-    }
   }
 
   @ReactMethod
@@ -191,7 +172,6 @@ public class RNJWPlayerModule extends ReactContextBaseJavaModule {
 
           if (playerView != null && playerView.mPlayerView != null) {
             playerView.mPlayerView.getPlayer().stop();
-            playerView.userPaused = true;
           }
         }
       });
@@ -297,20 +277,7 @@ public class RNJWPlayerModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void setFullscreen(final int reactTag, final boolean fullscreen) {
-    try {
-      UIManagerModule uiManager = mReactContext.getNativeModule(UIManagerModule.class);
-      uiManager.addUIBlock(new UIBlock() {
-        public void execute (NativeViewHierarchyManager nvhm) {
-          RNJWPlayerView playerView = (RNJWPlayerView) nvhm.resolveView(reactTag);
 
-          if (playerView != null && playerView.mPlayerView != null) {
-            playerView.mPlayerView.getPlayer().setFullscreen(fullscreen, fullscreen);
-          }
-        }
-      });
-    } catch (IllegalViewOperationException e) {
-      throw e;
-    }
   }
 
   @ReactMethod
