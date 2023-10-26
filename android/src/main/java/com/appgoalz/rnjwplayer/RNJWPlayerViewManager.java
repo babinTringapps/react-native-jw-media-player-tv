@@ -1,5 +1,5 @@
 
-package com.appgoalz.rnjwplayer;
+package com.jwcms.RNJWPlayer;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReadableMap;
@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 
 public class RNJWPlayerViewManager extends SimpleViewManager<RNJWPlayerView> {
 
-  public static final String REACT_CLASS = "RNJWPlayerView";
+  public static final String REACT_CLASS = "RNJWTVPlayerView";
 
   private final ReactApplicationContext mAppContext;
 
@@ -39,10 +39,7 @@ public class RNJWPlayerViewManager extends SimpleViewManager<RNJWPlayerView> {
     view.setConfig(prop);
   }
 
-  @ReactProp(name = "controls")
-  public void setControls(RNJWPlayerView view, Boolean controls) {
-    view.mPlayerView.getPlayer().setControls(controls);
-  }
+
 
   public Map getExportedCustomBubblingEventTypeConstants() {
     return MapBuilder.builder()
