@@ -1,5 +1,5 @@
 {
-  "name": "react-native-jw-media-player",
+  "name": "react-native-jw-media-player-tv",
   "version": "0.1.1",
   "description": "React-native Android/iOS plugin for JWPlayer SDK (https://www.jwplayer.com/)",
   "main": "index.js",
