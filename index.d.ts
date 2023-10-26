@@ -1,4 +1,4 @@
-declare module "react-native-jw-media-player" {
+declare module "react-native-jw-media-player-tv" {
   import React from "react";
   import { ViewStyle } from "react-native";
 
