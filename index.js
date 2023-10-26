@@ -11,13 +11,13 @@ import _ from 'lodash';
 
 const RNJWPlayerManager =
 	Platform.OS === 'ios'
-		? NativeModules.RNJWPlayerViewManager
-		: NativeModules.RNJWPlayerModule;
+		? NativeModules.RNJWPlayerViewManagerTV
+		: NativeModules.RNJWPlayerModuleTV;
 
 let playerId = 0;
-const RCT_RNJWPLAYER_REF = 'RNJWPlayerKey';
+const RCT_RNJWPLAYER_REF = 'RNJWPlayerTVModule';
 
-const RNJWPlayer = requireNativeComponent('RNJWPlayerView', null);
+const RNJWPlayer = requireNativeComponent('RNJWTVPlayerView', null);
 
 const JWPlayerStateIOS = {
 	JWPlayerStateUnknown: 0,
@@ -48,7 +48,7 @@ export const JWPlayerAdClients = {
 	JWAdClientUnknown: 3,
 };
 
-export default class JWPlayer extends Component {
+export default class JWPlayerTV extends Component {
 	static propTypes = {
 		config: PropTypes.shape({
 			license: PropTypes.string.isRequired,
@@ -189,8 +189,6 @@ export default class JWPlayer extends Component {
 			}),
 			offlineMessage: PropTypes.string,
 			offlineImage: PropTypes.string,
-			forceFullScreenOnLandscape: PropTypes.bool,
-			forceLandscapeOnFullScreen: PropTypes.bool,
 			enableLockScreenControls: PropTypes.bool,
 			stretching: PropTypes.oneOf([
 				'uniform',
@@ -214,7 +212,6 @@ export default class JWPlayer extends Component {
 		setControls: PropTypes.func,
 		setVisibility: PropTypes.func,
 		setLockScreenControls: PropTypes.func,
-		setFullscreen: PropTypes.func,
 		setUpCastController: PropTypes.func,
 		presentCastDialog: PropTypes.func,
 		connectedDevice: PropTypes.func,
@@ -231,10 +228,6 @@ export default class JWPlayer extends Component {
 		onBuffer: PropTypes.func,
 		onTime: PropTypes.func,
 		onComplete: PropTypes.func,
-		onFullScreenRequested: PropTypes.func,
-		onFullScreen: PropTypes.func,
-		onFullScreenExitRequested: PropTypes.func,
-		onFullScreenExit: PropTypes.func,
 		onSeek: PropTypes.func,
 		onSeeked: PropTypes.func,
 		onPlaylistItem: PropTypes.func,
@@ -362,13 +355,7 @@ export default class JWPlayer extends Component {
 			RNJWPlayerManager.loadPlaylist(this.getRNJWPlayerBridgeHandle(), playlistItems);
 	}
 
-	setFullscreen(fullscreen) {
-		if (RNJWPlayerManager)
-			RNJWPlayerManager.setFullscreen(
-				this.getRNJWPlayerBridgeHandle(),
-				fullscreen
-			);
-	}
+	
 
 	setVolume(value) {
 		if (RNJWPlayerManager) {
